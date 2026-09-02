@@ -62,11 +62,18 @@
 
   .korb{margin-top:34px;border:2px solid var(--tinte);padding:18px}
   .korb h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--leise);font-weight:600}
-  .kzeile{display:flex;gap:10px;align-items:baseline;margin:9px 0;font-size:16px}
+  .kzeile{display:flex;gap:10px;align-items:center;margin:11px 0;font-size:16px}
   .kzeile .kn{flex:1}
   .kzeile .kn small{display:block;color:var(--leise);font-size:13.5px}
   .kzeile .kp{font-variant-numeric:tabular-nums}
-  .kzeile .weg{background:none;border:0;color:var(--leise);font-size:19px;cursor:pointer;padding:0 2px;line-height:1}
+  .menge{display:inline-flex;align-items:center;gap:2px;flex:none}
+  .menge button{width:30px;height:30px;border:1px solid var(--linie);background:#fff;color:var(--tinte);
+    font-family:inherit;font-size:18px;line-height:1;cursor:pointer;padding:0}
+  .menge span{min-width:26px;text-align:center;font-variant-numeric:tabular-nums}
+
+  .zu{background:#fff;border:1px solid var(--rot);color:var(--rot);padding:12px 14px;margin:18px 0 0;font-size:15.5px}
+  .zu b{display:block;font-size:16.5px;color:var(--rot)}
+  .gratis{border:1px dashed var(--gruen);color:var(--gruen);padding:10px 12px;margin:14px 0 0;font-size:15px;text-align:center}
   .leer{color:var(--leise);font-size:15px;margin:0}
   .summe{display:flex;justify-content:space-between;border-top:1px solid var(--tinte);
     margin-top:14px;padding-top:12px;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -80,7 +87,13 @@
     border-top:1px solid var(--rand);padding:12px 14px calc(12px + env(safe-area-inset-bottom));
     box-shadow:0 -4px 18px rgba(60,50,30,.10)}
   .senden .innen{max-width:640px;margin:0 auto;display:flex;gap:12px;align-items:center}
-  .senden .gesamt{font-variant-numeric:tabular-nums;font-size:20px;font-weight:700;white-space:nowrap}
+  .senden .gesamt{font-variant-numeric:tabular-nums;font-size:20px;font-weight:700;white-space:nowrap;
+    background:none;border:0;color:var(--tinte);font-family:inherit;cursor:pointer;text-align:left;padding:0}
+  .senden .gesamt small{display:block;font-size:12.5px;font-weight:400;color:var(--leise)}
+  .telbox{display:flex;align-items:stretch;margin-top:5px}
+  .telbox .vor{display:grid;place-items:center;padding:0 12px;background:var(--papier);
+    border:1px solid var(--linie);border-right:0;font-variant-numeric:tabular-nums;color:var(--tinte)}
+  .telbox input{margin-top:0}
   .senden button{flex:1;background:var(--gruen);color:#fff;border:0;font-family:inherit;
     font-size:17px;padding:15px 12px;cursor:pointer}
   .senden button[disabled]{background:#b9b3a6;cursor:default}
@@ -103,6 +116,8 @@
   </div>
   <p class="hinweis">Bezahlt wird bei der Abholung oder an der Tür — bar oder mit Karte.</p>
 
+  <div id="zu" class="zu" hidden></div>
+
   <div id="karte"></div>
 
   <div class="korb">
@@ -115,23 +130,18 @@
         <input type="text" id="fName" autocomplete="name" placeholder="Vor- und Nachname">
       </label>
       <label>Telefonnummer
-        <input type="tel" id="fTel" autocomplete="tel" placeholder="0660 000 00 00">
+        <span class="telbox"><span class="vor">+43</span>
+          <input type="tel" id="fTel" autocomplete="tel" inputmode="numeric" placeholder="660 000 00 00">
+        </span>
       </label>
       <label id="lAdresse" hidden>Lieferadresse
         <input type="text" id="fAdresse" placeholder="Straße, Nummer, Ort">
       </label>
       <label>Wann?
-        <select id="fZeit">
-          <option>so bald wie möglich</option>
-          <option>in 30 Minuten</option>
-          <option>in 45 Minuten</option>
-          <option>in einer Stunde</option>
-          <option>um 18:00</option>
-          <option>um 18:30</option>
-          <option>um 19:00</option>
-          <option>um 19:30</option>
-        </select>
+        <select id="fZeit"></select>
       </label>
+
+      <p class="gratis">Direkt bestellt: kein Aufschlag — und ein Getränk geht aufs Haus.</p>
     </div>
   </div>
 
@@ -143,7 +153,7 @@
 
 <div class="senden">
   <div class="innen">
-    <span class="gesamt" id="gesamt">0,00 €</span>
+    <button type="button" class="gesamt" id="gesamt">0,00 €<small>zum Korb</small></button>
     <button type="button" id="bSenden" disabled>Bestellung schicken</button>
   </div>
 </div>
@@ -153,6 +163,16 @@
   // ---- Hier ändert man den Betrieb: Nummer, Zuschlag, Karte -------------------
   var WHATSAPP = "436601820494";       // Nummer des Betriebs, ohne + und ohne 0
   var LIEFERUNG = 3.00, MINDEST = 20.00;
+  var VORLAUF = 25;                    // Minuten, die die Küche mindestens braucht
+
+  // Öffnungszeiten je Wochentag (0 = Sonntag). Mehrere Fenster pro Tag möglich.
+  var OFFEN = {
+    0:[["11:00","14:00"],["17:00","21:00"]], 1:[["11:00","14:00"],["17:00","21:00"]],
+    2:[["11:00","14:00"],["17:00","21:00"]], 3:[["11:00","14:00"],["17:00","21:00"]],
+    4:[["11:00","14:00"],["17:00","21:00"]], 5:[["11:00","14:00"],["17:00","21:00"]],
+    6:[["11:00","14:00"],["17:00","21:00"]]
+  };
+  var TAGE = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
 
   var KARTE = [
     { gruppe:"Pizzen", groessen:true, extras:true, sachen:[
@@ -240,19 +260,27 @@
       var ex = EXTRAS[+c.value]; preis += ex.auf; zusatz.push(ex.n);
       c.checked = false;
     });
-    korb.push({ name:s.n, zusatz:zusatz, preis:preis });
+    var schluessel = s.n + '|' + zusatz.join(',');
+    var da = korb.filter(function(p){ return p.schluessel === schluessel; })[0];
+    if (da) da.anz++;
+    else korb.push({ schluessel:schluessel, name:s.n, zusatz:zusatz, preis:preis, anz:1 });
     box.classList.remove('offen');
     zeichneKorb();
   });
 
+  function warenwert(){ return korb.reduce(function(a,p){ return a + p.preis * p.anz; }, 0); }
+  function stueck(){ return korb.reduce(function(a,p){ return a + p.anz; }, 0); }
+
   function zeichneKorb(){
-    var liste = document.getElementById('korbliste'), summe = 0, h = '';
+    var liste = document.getElementById('korbliste'), summe = warenwert(), h = '';
     korb.forEach(function(p, i){
-      summe += p.preis;
-      h += '<div class="kzeile"><span class="kn">' + p.name
+      h += '<div class="kzeile">'
+        + '<span class="menge"><button data-minus="'+i+'" aria-label="weniger">−</button>'
+        +   '<span>' + p.anz + '</span>'
+        +   '<button data-plus="'+i+'" aria-label="mehr">+</button></span>'
+        + '<span class="kn">' + p.name
         + (p.zusatz.length ? '<small>' + p.zusatz.join(', ') + '</small>' : '')
-        + '</span><span class="kp">' + eur(p.preis) + '</span>'
-        + '<button class="weg" data-weg="'+i+'" title="entfernen">×</button></div>';
+        + '</span><span class="kp">' + eur(p.preis * p.anz) + '</span></div>';
     });
     if (!korb.length) h = '<p class="leer">Noch nichts ausgewählt.</p>';
     if (lieferung && korb.length){
@@ -260,23 +288,84 @@
       h += '<div class="kzeile"><span class="kn">Lieferung</span><span class="kp">' + eur(LIEFERUNG) + '</span></div>';
     }
     liste.innerHTML = h;
-    document.getElementById('summe').textContent  = eur(summe);
-    document.getElementById('gesamt').textContent = eur(summe);
+    document.getElementById('summe').textContent = eur(summe);
 
-    var warenwert = korb.reduce(function(a,p){ return a + p.preis; }, 0);
-    var ok = korb.length > 0 && (!lieferung || warenwert >= MINDEST);
+    var anz = stueck();
+    document.getElementById('gesamt').innerHTML = eur(summe)
+      + '<small>' + (anz ? anz + (anz === 1 ? ' Sache' : ' Sachen') + ' im Korb' : 'noch leer') + '</small>';
+
+    var ok = korb.length > 0 && (!lieferung || warenwert() >= MINDEST) && zeitOffen;
     var knopf = document.getElementById('bSenden');
     knopf.disabled = !ok;
-    knopf.textContent = (lieferung && korb.length && warenwert < MINDEST)
-      ? 'Lieferung ab ' + eur(MINDEST) : 'Bestellung schicken';
+    knopf.textContent = (lieferung && korb.length && warenwert() < MINDEST)
+      ? 'noch ' + eur(MINDEST - warenwert()) + ' bis Lieferung' : 'Bestellung schicken';
   }
 
   document.getElementById('korbliste').addEventListener('click', function(e){
-    var w = e.target.closest('[data-weg]');
-    if (!w) return;
-    korb.splice(+w.getAttribute('data-weg'), 1);
-    zeichneKorb();
+    var p = e.target.closest('[data-plus]'), m = e.target.closest('[data-minus]');
+    if (p){ korb[+p.getAttribute('data-plus')].anz++; zeichneKorb(); return; }
+    if (m){
+      var i = +m.getAttribute('data-minus');
+      if (--korb[i].anz <= 0) korb.splice(i, 1);
+      zeichneKorb();
+    }
   });
+
+  document.getElementById('gesamt').onclick = function(){
+    document.querySelector('.korb').scrollIntoView({ behavior:'smooth', block:'start' });
+  };
+
+  // ---- Uhrzeit: offen, geschlossen, Vorbestellung -----------------------------
+  var zeitOffen = false;
+
+  function min(t){ var s = t.split(':'); return +s[0]*60 + +s[1]; }
+  function hhmm(m){ m = ((m % 1440) + 1440) % 1440;
+    return String(Math.floor(m/60)).padStart(2,'0') + ':' + String(m%60).padStart(2,'0'); }
+
+  function zeiten(){
+    var jetzt = new Date();
+    var heute = jetzt.getDay(), nun = jetzt.getHours()*60 + jetzt.getMinutes();
+    var frueh = Math.ceil((nun + VORLAUF) / 15) * 15;
+    // Lokal offen, aber die Küche schafft es heute nicht mehr? Anderer Satz als "geschlossen".
+    var imFenster = (OFFEN[heute] || []).some(function(f){ return nun >= min(f[0]) && nun <= min(f[1]); });
+
+    for (var d = 0; d < 8; d++){
+      var tag = (heute + d) % 7, fenster = OFFEN[tag] || [];
+      for (var i = 0; i < fenster.length; i++){
+        var von = min(fenster[i][0]), bis = min(fenster[i][1]);
+        var start = (d === 0) ? Math.max(von, frueh) : von;
+        if (d === 0 && start > bis) continue;          // Fenster heute schon vorbei
+        var jetztOffen = (d === 0 && nun >= von && nun <= bis);
+        var liste = [];
+        for (var t = start; t <= bis; t += 15) liste.push(hhmm(t));
+        if (!liste.length) continue;
+        return { offen:jetztOffen, imFenster:imFenster, tag:d, tagName:TAGE[tag], von:hhmm(von), slots:liste };
+      }
+    }
+    return null;
+  }
+
+  function setzeZeit(){
+    var z = zeiten(), sel = document.getElementById('fZeit'), banner = document.getElementById('zu');
+    if (!z){ zeitOffen = false; return; }
+    zeitOffen = true;
+
+    var h = z.offen ? '<option>so bald wie möglich</option>' : '';
+    z.slots.forEach(function(t){ h += '<option>um ' + t + ' Uhr</option>'; });
+    sel.innerHTML = h;
+
+    if (z.offen){ banner.hidden = true; }
+    else {
+      var wann = (z.tag === 0) ? 'heute' : (z.tag === 1 ? 'morgen' : 'am ' + z.tagName);
+      banner.hidden = false;
+      banner.innerHTML = (z.imFenster
+          ? '<b>Küchenschluss.</b>Für jetzt geht sich nichts mehr aus. '
+          : '<b>Gerade geschlossen.</b>')
+        + 'Bestellen können Sie trotzdem — die Küche nimmt sie '
+        + wann + ' ab ' + z.von + ' Uhr entgegen.';
+    }
+  }
+  // -----------------------------------------------------------------------------
 
   function setzeArt(l){
     lieferung = l;
@@ -290,27 +379,32 @@
 
   document.getElementById('bSenden').onclick = function(){
     var name = document.getElementById('fName').value.trim();
-    var tel  = document.getElementById('fTel').value.trim();
+    var tel  = document.getElementById('fTel').value.replace(/[^0-9]/g, '').replace(/^0+/, '');
     var adr  = document.getElementById('fAdresse').value.trim();
-    if (!name || !tel){ alert('Bitte Name und Telefonnummer eintragen.'); return; }
+    if (!name){ alert('Bitte den Namen eintragen.'); return; }
+    if (tel.length < 7){ alert('Bitte die Telefonnummer ohne die führende Null eintragen, z. B. 660 000 00 00.'); return; }
     if (lieferung && !adr){ alert('Bitte die Lieferadresse eintragen.'); return; }
 
-    var summe = korb.reduce(function(a,p){ return a + p.preis; }, 0) + (lieferung ? LIEFERUNG : 0);
+    var summe = warenwert() + (lieferung ? LIEFERUNG : 0);
     var t = 'Bestellung – Pizzeria Sonnhof\n\n';
     korb.forEach(function(p){
-      t += '• ' + p.name + (p.zusatz.length ? ' (' + p.zusatz.join(', ') + ')' : '')
-        + ' — ' + eur(p.preis) + '\n';
+      t += '• ' + p.anz + '× ' + p.name + (p.zusatz.length ? ' (' + p.zusatz.join(', ') + ')' : '')
+        + ' — ' + eur(p.preis * p.anz) + '\n';
     });
     if (lieferung) t += '• Lieferung — ' + eur(LIEFERUNG) + '\n';
     t += '\nSumme: ' + eur(summe) + '\n\n'
       + (lieferung ? 'Lieferung an: ' + adr + '\n' : 'Abholung im Lokal\n')
       + 'Wann: ' + document.getElementById('fZeit').value + '\n'
       + 'Name: ' + name + '\n'
-      + 'Telefon: ' + tel;
+      + 'Telefon: +43 ' + tel;
 
     window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(t), '_blank');
   };
 
+  setzeZeit();
+  setInterval(function(){                       // nur nachziehen, solange nichts gewählt wurde
+    if (document.getElementById('fZeit').selectedIndex <= 0) setzeZeit();
+  }, 60000);
   zeichneKorb();
 })();
 </script>
