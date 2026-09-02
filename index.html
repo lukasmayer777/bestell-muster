@@ -6,14 +6,14 @@
 <title>Pizzeria Sonnhof – direkt bestellen (Musterbetrieb)</title>
 <style>
   :root{
-    --papier:#f4efe4;
-    --blatt:#fbf8f1;
-    --rand:#e5dcc9;
-    --tinte:#1d1b17;
-    --leise:#6b6559;
-    --rot:#7c2230;
-    --gruen:#2f5d3f;
-    --linie:#cfc5ae;
+    --papier:#14150f;        /* Grund: warmes Fast-Schwarz */
+    --blatt:#1c1d16;         /* die Karte selbst */
+    --rand:#2c2d23;
+    --tinte:#ece7db;         /* Schrift: Knochenweiß */
+    --leise:#9a9484;
+    --messing:#c39a58;       /* der einzige Akzent */
+    --messing-satt:#dcb679;
+    --linie:#3a3b2f;
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -24,10 +24,10 @@
     padding:22px 14px 128px;
   }
   .blatt{max-width:640px;margin:0 auto;background:var(--blatt);
-    border:1px solid var(--rand);box-shadow:0 6px 24px rgba(60,50,30,.10);
+    border:1px solid var(--rand);box-shadow:0 10px 34px rgba(0,0,0,.45);
     padding:30px 26px 26px;}
 
-  header{text-align:center;border-bottom:2px solid var(--tinte);padding-bottom:16px}
+  header{text-align:center;border-bottom:1px solid var(--messing);padding-bottom:16px}
   .muster{display:inline-block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
     color:var(--leise);border:1px solid var(--linie);padding:3px 9px;margin-bottom:10px}
   h1{font-size:32px;line-height:1.1;margin:0 0 .25em;font-weight:600}
@@ -37,7 +37,7 @@
   .wahl button{flex:1;background:var(--blatt);border:1px solid var(--linie);color:var(--tinte);
     font-family:inherit;font-size:16px;padding:12px 10px;cursor:pointer}
   .wahl button small{display:block;color:var(--leise);font-size:13px}
-  .wahl button[aria-pressed=true]{background:#fff;border-color:var(--tinte);box-shadow:inset 0 0 0 1px var(--tinte)}
+  .wahl button[aria-pressed=true]{background:#23241b;border-color:var(--messing);box-shadow:inset 0 0 0 1px var(--messing)}
   .hinweis{font-size:13.5px;color:var(--leise);margin:8px 0 0;text-align:center}
 
   h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--leise);
@@ -48,44 +48,43 @@
   .kopf .name{font-size:18px}
   .kopf .zutaten{display:block;font-size:14px;color:var(--leise)}
   .kopf .punkte{flex:1;border-bottom:1px dotted var(--linie);transform:translateY(-5px)}
-  .kopf .preis{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .kopf .preis{font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--messing)}
   .kopf .plus{width:30px;height:30px;flex:none;border:1px solid var(--linie);border-radius:50%;
-    display:grid;place-items:center;font-size:19px;line-height:1;color:var(--rot);background:#fff}
+    display:grid;place-items:center;font-size:19px;line-height:1;color:var(--messing);background:transparent;border-color:var(--messing)}
 
   .panel{display:none;padding:14px 0 4px}
   .gericht.offen .panel{display:block}
   .panel fieldset{border:0;padding:0;margin:0 0 12px}
   .panel legend{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--leise);margin-bottom:6px}
   .panel label{display:inline-flex;align-items:center;gap:7px;margin:0 14px 8px 0;font-size:15.5px}
-  .inkorb{background:var(--tinte);color:#fbf8f1;border:0;font-family:inherit;font-size:16px;
+  .inkorb{background:var(--messing);color:#14150f;border:0;font-family:inherit;font-size:16px;
     padding:11px 18px;cursor:pointer;width:100%}
 
-  .korb{margin-top:34px;border:2px solid var(--tinte);padding:18px}
+  .korb{margin-top:34px;border:1px solid var(--linie);padding:18px}
   .korb h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--leise);font-weight:600}
   .kzeile{display:flex;gap:10px;align-items:center;margin:11px 0;font-size:16px}
   .kzeile .kn{flex:1}
   .kzeile .kn small{display:block;color:var(--leise);font-size:13.5px}
   .kzeile .kp{font-variant-numeric:tabular-nums}
   .menge{display:inline-flex;align-items:center;gap:2px;flex:none}
-  .menge button{width:30px;height:30px;border:1px solid var(--linie);background:#fff;color:var(--tinte);
+  .menge button{width:30px;height:30px;border:1px solid var(--linie);background:transparent;color:var(--tinte);
     font-family:inherit;font-size:18px;line-height:1;cursor:pointer;padding:0}
   .menge span{min-width:26px;text-align:center;font-variant-numeric:tabular-nums}
 
-  .zu{background:#fff;border:1px solid var(--rot);color:var(--rot);padding:12px 14px;margin:18px 0 0;font-size:15.5px}
-  .zu b{display:block;font-size:16.5px;color:var(--rot)}
-  .gratis{border:1px dashed var(--gruen);color:var(--gruen);padding:10px 12px;margin:14px 0 0;font-size:15px;text-align:center}
+  .zu{background:#23241b;border:1px solid var(--messing);color:var(--tinte);padding:12px 14px;margin:18px 0 0;font-size:15.5px}
+  .zu b{display:block;font-size:16.5px;color:var(--messing)}
   .leer{color:var(--leise);font-size:15px;margin:0}
-  .summe{display:flex;justify-content:space-between;border-top:1px solid var(--tinte);
+  .summe{display:flex;justify-content:space-between;border-top:1px solid var(--messing);
     margin-top:14px;padding-top:12px;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
 
   .felder{margin-top:26px}
   .felder label{display:block;margin-bottom:14px;font-size:15px;color:var(--leise)}
   .felder input,.felder select{display:block;width:100%;margin-top:5px;padding:11px 12px;
-    font-family:inherit;font-size:17px;color:var(--tinte);background:#fff;border:1px solid var(--linie)}
+    font-family:inherit;font-size:17px;color:var(--tinte);background:#12130d;border:1px solid var(--linie)}
 
   .senden{position:fixed;left:0;right:0;bottom:0;background:var(--blatt);
     border-top:1px solid var(--rand);padding:12px 14px calc(12px + env(safe-area-inset-bottom));
-    box-shadow:0 -4px 18px rgba(60,50,30,.10)}
+    box-shadow:0 -6px 22px rgba(0,0,0,.45)}
   .senden .innen{max-width:640px;margin:0 auto;display:flex;gap:12px;align-items:center}
   .senden .gesamt{font-variant-numeric:tabular-nums;font-size:20px;font-weight:700;white-space:nowrap;
     background:none;border:0;color:var(--tinte);font-family:inherit;cursor:pointer;text-align:left;padding:0}
@@ -94,9 +93,9 @@
   .telbox .vor{display:grid;place-items:center;padding:0 12px;background:var(--papier);
     border:1px solid var(--linie);border-right:0;font-variant-numeric:tabular-nums;color:var(--tinte)}
   .telbox input{margin-top:0}
-  .senden button{flex:1;background:var(--gruen);color:#fff;border:0;font-family:inherit;
+  .senden button{flex:1;background:var(--messing);color:#14150f;border:0;font-family:inherit;
     font-size:17px;padding:15px 12px;cursor:pointer}
-  .senden button[disabled]{background:#b9b3a6;cursor:default}
+  .senden button[disabled]{background:#2c2d23;color:var(--leise);cursor:default}
 
   .fuss{margin-top:26px;padding-top:14px;border-top:1px solid var(--linie);font-size:13px;color:var(--leise)}
 </style>
@@ -141,7 +140,6 @@
         <select id="fZeit"></select>
       </label>
 
-      <p class="gratis">Direkt bestellt: kein Aufschlag — und ein Getränk geht aufs Haus.</p>
     </div>
   </div>
 
@@ -358,11 +356,8 @@
     else {
       var wann = (z.tag === 0) ? 'heute' : (z.tag === 1 ? 'morgen' : 'am ' + z.tagName);
       banner.hidden = false;
-      banner.innerHTML = (z.imFenster
-          ? '<b>Küchenschluss.</b>Für jetzt geht sich nichts mehr aus. '
-          : '<b>Gerade geschlossen.</b>')
-        + 'Bestellen können Sie trotzdem — die Küche nimmt sie '
-        + wann + ' ab ' + z.von + ' Uhr entgegen.';
+      banner.innerHTML = (z.imFenster ? '<b>Küchenschluss.</b>' : '<b>Gerade geschlossen.</b>')
+        + 'Die Küche nimmt Ihre Bestellung ' + wann + ' ab ' + z.von + ' Uhr entgegen.';
     }
   }
   // -----------------------------------------------------------------------------
