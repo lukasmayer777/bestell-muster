@@ -79,6 +79,7 @@
     border-top:1px solid var(--linie);padding-top:16px;font-size:15px;color:var(--tinte);cursor:pointer}
   .zustimmung input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:var(--burgund)}
   .zustimmung b{font-weight:600;color:var(--messing)}
+  .zustimmung small b{display:block;margin-bottom:3px}
   .zustimmung small{display:block;color:var(--leise);font-size:13.5px;margin-top:3px}
   .leer{color:var(--leise);font-size:15px;margin:0}
   .summe{display:flex;justify-content:space-between;border-top:1px solid var(--messing);
@@ -149,8 +150,9 @@
 
       <label class="zustimmung">
         <input type="checkbox" id="fWerbung">
-        <span><b>Punkte sammeln — jede zehnte Pizza geht aufs Haus.</b>
-          <small>Dazu schickt Ihnen die Pizzeria den Punktestand und die Wochenkarte.
+        <span><b>Punkte sammeln — 1 Punkt je Euro, 100 Punkte sind 5 € wert.</b>
+          <small><b id="punkteJetzt"></b>
+          Dazu schickt Ihnen die Pizzeria den Punktestand und die Wochenkarte.
           Freiwillig, die Bestellung geht auch ohne. Abmelden jederzeit mit einer Nachricht.</small></span>
       </label>
     </div>
@@ -301,6 +303,9 @@
     liste.innerHTML = h;
     document.getElementById('summe').textContent = eur(summe);
 
+    var jetzt = document.getElementById('punkteJetzt');
+    if (jetzt) jetzt.textContent = korb.length
+      ? 'Diese Bestellung bringt ' + Math.round(warenwert()) + ' Punkte.' : '';
     var anz = stueck();
     document.getElementById('gesamt').innerHTML = eur(summe)
       + '<small>' + (anz ? anz + (anz === 1 ? ' Sache' : ' Sachen') + ' im Warenkorb' : 'noch leer') + '</small>';
@@ -406,7 +411,8 @@
       + 'Name: ' + name + '\n'
       + 'Telefon: +43 ' + tel
       + (document.getElementById('fWerbung').checked
-          ? '\nPunkte sammeln: ja (Nachrichten erlaubt)' : '');
+          ? '\nPunkte sammeln: ja (Nachrichten erlaubt) — '
+            + Math.round(warenwert()) + ' Punkte' : '');
 
     window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(t), '_blank');
   };
