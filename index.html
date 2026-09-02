@@ -153,7 +153,7 @@
 
 <div class="senden">
   <div class="innen">
-    <button type="button" class="gesamt" id="gesamt">0,00 €<small>zum Korb</small></button>
+    <button type="button" class="gesamt" id="gesamt">0,00 €<small>zum Warenkorb</small></button>
     <button type="button" id="bSenden" disabled>Bestellung schicken</button>
   </div>
 </div>
@@ -239,7 +239,7 @@
         });
         html += '</fieldset>';
       }
-      html += '<button type="button" class="inkorb" data-in="'+id+'">In den Korb</button>'
+      html += '<button type="button" class="inkorb" data-in="'+id+'">In den Warenkorb</button>'
            + '</div></div>';
     });
   });
@@ -292,7 +292,7 @@
 
     var anz = stueck();
     document.getElementById('gesamt').innerHTML = eur(summe)
-      + '<small>' + (anz ? anz + (anz === 1 ? ' Sache' : ' Sachen') + ' im Korb' : 'noch leer') + '</small>';
+      + '<small>' + (anz ? anz + (anz === 1 ? ' Sache' : ' Sachen') + ' im Warenkorb' : 'noch leer') + '</small>';
 
     var ok = korb.length > 0 && (!lieferung || warenwert() >= MINDEST) && zeitOffen;
     var knopf = document.getElementById('bSenden');
