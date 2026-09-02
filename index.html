@@ -78,6 +78,7 @@
   .zustimmung{display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;
     border-top:1px solid var(--linie);padding-top:16px;font-size:15px;color:var(--tinte);cursor:pointer}
   .zustimmung input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:var(--burgund)}
+  .zustimmung b{font-weight:600;color:var(--messing)}
   .zustimmung small{display:block;color:var(--leise);font-size:13.5px;margin-top:3px}
   .leer{color:var(--leise);font-size:15px;margin:0}
   .summe{display:flex;justify-content:space-between;border-top:1px solid var(--messing);
@@ -148,8 +149,9 @@
 
       <label class="zustimmung">
         <input type="checkbox" id="fWerbung">
-        <span>Die Pizzeria darf mir die Wochenkarte und Angebote schicken.
-          <small>Freiwillig — die Bestellung geht auch ohne. Abmelden jederzeit mit einer Nachricht.</small></span>
+        <span><b>Punkte sammeln — jede zehnte Pizza geht aufs Haus.</b>
+          <small>Dazu schickt Ihnen die Pizzeria den Punktestand und die Wochenkarte.
+          Freiwillig, die Bestellung geht auch ohne. Abmelden jederzeit mit einer Nachricht.</small></span>
       </label>
     </div>
   </div>
@@ -402,8 +404,9 @@
       + (lieferung ? 'Lieferung an: ' + adr + '\n' : 'Abholung im Lokal\n')
       + 'Wann: ' + document.getElementById('fZeit').value + '\n'
       + 'Name: ' + name + '\n'
-      + 'Telefon: +43 ' + tel + '\n'
-      + 'Werbung erlaubt: ' + (document.getElementById('fWerbung').checked ? 'JA' : 'nein');
+      + 'Telefon: +43 ' + tel
+      + (document.getElementById('fWerbung').checked
+          ? '\nPunkte sammeln: ja (Nachrichten erlaubt)' : '');
 
     window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(t), '_blank');
   };
