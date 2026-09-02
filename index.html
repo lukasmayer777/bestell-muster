@@ -75,6 +75,10 @@
 
   .zu{background:var(--burgund-tief);border:1px solid var(--messing);color:var(--tinte);padding:12px 14px;margin:18px 0 0;font-size:15.5px}
   .zu b{display:block;font-size:16.5px;color:var(--messing)}
+  .zustimmung{display:flex;gap:10px;align-items:flex-start;margin:18px 0 0;
+    border-top:1px solid var(--linie);padding-top:16px;font-size:15px;color:var(--tinte);cursor:pointer}
+  .zustimmung input{width:22px;height:22px;flex:none;margin:1px 0 0;accent-color:var(--burgund)}
+  .zustimmung small{display:block;color:var(--leise);font-size:13.5px;margin-top:3px}
   .leer{color:var(--leise);font-size:15px;margin:0}
   .summe{display:flex;justify-content:space-between;border-top:1px solid var(--messing);
     margin-top:14px;padding-top:12px;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
@@ -142,6 +146,11 @@
         <select id="fZeit"></select>
       </label>
 
+      <label class="zustimmung">
+        <input type="checkbox" id="fWerbung">
+        <span>Die Pizzeria darf mir die Wochenkarte und Angebote schicken.
+          <small>Freiwillig — die Bestellung geht auch ohne. Abmelden jederzeit mit einer Nachricht.</small></span>
+      </label>
     </div>
   </div>
 
@@ -393,7 +402,8 @@
       + (lieferung ? 'Lieferung an: ' + adr + '\n' : 'Abholung im Lokal\n')
       + 'Wann: ' + document.getElementById('fZeit').value + '\n'
       + 'Name: ' + name + '\n'
-      + 'Telefon: +43 ' + tel;
+      + 'Telefon: +43 ' + tel + '\n'
+      + 'Werbung erlaubt: ' + (document.getElementById('fWerbung').checked ? 'JA' : 'nein');
 
     window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(t), '_blank');
   };
