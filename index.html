@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pizzeria Sonnhof – direkt bestellen (Musterbetrieb)</title>
+<style>
+  :root{
+    --papier:#f4efe4;
+    --blatt:#fbf8f1;
+    --rand:#e5dcc9;
+    --tinte:#1d1b17;
+    --leise:#6b6559;
+    --rot:#7c2230;
+    --gruen:#2f5d3f;
+    --linie:#cfc5ae;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--papier);color:var(--tinte);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    font-size:17px;line-height:1.5;
+    padding:22px 14px 128px;
+  }
+  .blatt{max-width:640px;margin:0 auto;background:var(--blatt);
+    border:1px solid var(--rand);box-shadow:0 6px 24px rgba(60,50,30,.10);
+    padding:30px 26px 26px;}
+
+  header{text-align:center;border-bottom:2px solid var(--tinte);padding-bottom:16px}
+  .muster{display:inline-block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--leise);border:1px solid var(--linie);padding:3px 9px;margin-bottom:10px}
+  h1{font-size:32px;line-height:1.1;margin:0 0 .25em;font-weight:600}
+  .adresse{margin:0;color:var(--leise);font-size:14.5px}
+
+  .wahl{display:flex;gap:10px;margin:22px 0 4px}
+  .wahl button{flex:1;background:var(--blatt);border:1px solid var(--linie);color:var(--tinte);
+    font-family:inherit;font-size:16px;padding:12px 10px;cursor:pointer}
+  .wahl button small{display:block;color:var(--leise);font-size:13px}
+  .wahl button[aria-pressed=true]{background:#fff;border-color:var(--tinte);box-shadow:inset 0 0 0 1px var(--tinte)}
+  .hinweis{font-size:13.5px;color:var(--leise);margin:8px 0 0;text-align:center}
+
+  h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--leise);
+     margin:34px 0 6px;font-weight:600;border-bottom:1px solid var(--linie);padding-bottom:6px}
+
+  .gericht{padding:12px 0;border-bottom:1px dotted var(--rand)}
+  .kopf{display:flex;align-items:baseline;gap:8px;cursor:pointer}
+  .kopf .name{font-size:18px}
+  .kopf .zutaten{display:block;font-size:14px;color:var(--leise)}
+  .kopf .punkte{flex:1;border-bottom:1px dotted var(--linie);transform:translateY(-5px)}
+  .kopf .preis{font-variant-numeric:tabular-nums;white-space:nowrap}
+  .kopf .plus{width:30px;height:30px;flex:none;border:1px solid var(--linie);border-radius:50%;
+    display:grid;place-items:center;font-size:19px;line-height:1;color:var(--rot);background:#fff}
+
+  .panel{display:none;padding:14px 0 4px}
+  .gericht.offen .panel{display:block}
+  .panel fieldset{border:0;padding:0;margin:0 0 12px}
+  .panel legend{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--leise);margin-bottom:6px}
+  .panel label{display:inline-flex;align-items:center;gap:7px;margin:0 14px 8px 0;font-size:15.5px}
+  .inkorb{background:var(--tinte);color:#fbf8f1;border:0;font-family:inherit;font-size:16px;
+    padding:11px 18px;cursor:pointer;width:100%}
+
+  .korb{margin-top:34px;border:2px solid var(--tinte);padding:18px}
+  .korb h3{margin:0 0 12px;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--leise);font-weight:600}
+  .kzeile{display:flex;gap:10px;align-items:baseline;margin:9px 0;font-size:16px}
+  .kzeile .kn{flex:1}
+  .kzeile .kn small{display:block;color:var(--leise);font-size:13.5px}
+  .kzeile .kp{font-variant-numeric:tabular-nums}
+  .kzeile .weg{background:none;border:0;color:var(--leise);font-size:19px;cursor:pointer;padding:0 2px;line-height:1}
+  .leer{color:var(--leise);font-size:15px;margin:0}
+  .summe{display:flex;justify-content:space-between;border-top:1px solid var(--tinte);
+    margin-top:14px;padding-top:12px;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+
+  .felder{margin-top:26px}
+  .felder label{display:block;margin-bottom:14px;font-size:15px;color:var(--leise)}
+  .felder input,.felder select{display:block;width:100%;margin-top:5px;padding:11px 12px;
+    font-family:inherit;font-size:17px;color:var(--tinte);background:#fff;border:1px solid var(--linie)}
+
+  .senden{position:fixed;left:0;right:0;bottom:0;background:var(--blatt);
+    border-top:1px solid var(--rand);padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+    box-shadow:0 -4px 18px rgba(60,50,30,.10)}
+  .senden .innen{max-width:640px;margin:0 auto;display:flex;gap:12px;align-items:center}
+  .senden .gesamt{font-variant-numeric:tabular-nums;font-size:20px;font-weight:700;white-space:nowrap}
+  .senden button{flex:1;background:var(--gruen);color:#fff;border:0;font-family:inherit;
+    font-size:17px;padding:15px 12px;cursor:pointer}
+  .senden button[disabled]{background:#b9b3a6;cursor:default}
+
+  .fuss{margin-top:26px;padding-top:14px;border-top:1px solid var(--linie);font-size:13px;color:var(--leise)}
+</style>
+</head>
+<body>
+<div class="blatt">
+
+  <header>
+    <div class="muster">Musterbetrieb — erfundene Firma</div>
+    <h1>Pizzeria Sonnhof</h1>
+    <p class="adresse">Hauptstraße 1, 4600 Musterstadt · täglich 11–14 und 17–21 Uhr</p>
+  </header>
+
+  <div class="wahl">
+    <button type="button" id="bAbhol" aria-pressed="true">Abholung<small>ohne Aufschlag</small></button>
+    <button type="button" id="bLief" aria-pressed="false">Lieferung<small>3,00 € ab 20 € Bestellwert</small></button>
+  </div>
+  <p class="hinweis">Bezahlt wird bei der Abholung oder an der Tür — bar oder mit Karte.</p>
+
+  <div id="karte"></div>
+
+  <div class="korb">
+    <h3>Ihre Bestellung</h3>
+    <div id="korbliste"><p class="leer">Noch nichts ausgewählt.</p></div>
+    <div class="summe"><span>Summe</span><span id="summe">0,00 €</span></div>
+
+    <div class="felder">
+      <label>Ihr Name
+        <input type="text" id="fName" autocomplete="name" placeholder="Vor- und Nachname">
+      </label>
+      <label>Telefonnummer
+        <input type="tel" id="fTel" autocomplete="tel" placeholder="0660 000 00 00">
+      </label>
+      <label id="lAdresse" hidden>Lieferadresse
+        <input type="text" id="fAdresse" placeholder="Straße, Nummer, Ort">
+      </label>
+      <label>Wann?
+        <select id="fZeit">
+          <option>so bald wie möglich</option>
+          <option>in 30 Minuten</option>
+          <option>in 45 Minuten</option>
+          <option>in einer Stunde</option>
+          <option>um 18:00</option>
+          <option>um 18:30</option>
+          <option>um 19:00</option>
+          <option>um 19:30</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <p class="fuss">
+    Diese Seite ist ein Muster zum Vorführen. Es fließt kein Geld über die Seite —
+    die Bestellung geht als Nachricht direkt an den Betrieb, bezahlt wird wie bisher vor Ort.
+  </p>
+</div>
+
+<div class="senden">
+  <div class="innen">
+    <span class="gesamt" id="gesamt">0,00 €</span>
+    <button type="button" id="bSenden" disabled>Bestellung schicken</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---- Hier ändert man den Betrieb: Nummer, Zuschlag, Karte -------------------
+  var WHATSAPP = "436601820494";       // Nummer des Betriebs, ohne + und ohne 0
+  var LIEFERUNG = 3.00, MINDEST = 20.00;
+
+  var KARTE = [
+    { gruppe:"Pizzen", groessen:true, extras:true, sachen:[
+      { n:"Margherita",  z:"Tomaten, Mozzarella, Basilikum",                p:9.50 },
+      { n:"Salami",      z:"Tomaten, Mozzarella, Salami",                   p:10.50 },
+      { n:"Prosciutto",  z:"Tomaten, Mozzarella, Schinken",                 p:10.90 },
+      { n:"Funghi",      z:"Tomaten, Mozzarella, Champignons",              p:10.50 },
+      { n:"Diavola",     z:"Tomaten, Mozzarella, scharfe Salami, Peperoni", p:11.90 },
+      { n:"Quattro Formaggi", z:"Mozzarella, Gorgonzola, Parmesan, Feta",   p:12.50 },
+      { n:"Vegetaria",   z:"Tomaten, Mozzarella, Gemüse der Saison",        p:11.50 }
+    ]},
+    { gruppe:"Aus der Pfanne", sachen:[
+      { n:"Spaghetti Bolognese", z:"Rindfaschiertes, Tomaten, Parmesan", p:11.90 },
+      { n:"Penne all'Arrabbiata", z:"scharfe Tomatensauce, Knoblauch",   p:10.90 },
+      { n:"Lasagne",             z:"hausgemacht, Portion",               p:12.50 }
+    ]},
+    { gruppe:"Salate", sachen:[
+      { n:"Gemischter Salat", z:"kleine Schüssel",                p:5.50 },
+      { n:"Insalata Tonno",   z:"Blattsalat, Thunfisch, Zwiebel", p:9.90 }
+    ]},
+    { gruppe:"Getränke", sachen:[
+      { n:"Mineralwasser 0,5 l", z:"", p:2.90 },
+      { n:"Cola 0,5 l",          z:"", p:3.20 },
+      { n:"Almdudler 0,5 l",     z:"", p:3.20 },
+      { n:"Bier 0,5 l",          z:"", p:4.20 }
+    ]}
+  ];
+
+  var GROESSEN = [ {n:"30 cm", auf:0}, {n:"40 cm", auf:4.00} ];
+  var EXTRAS   = [ {n:"Extra Käse", auf:1.50}, {n:"Schinken", auf:2.00},
+                   {n:"Champignons", auf:1.50}, {n:"Peperoni", auf:1.00} ];
+  // ---------------------------------------------------------------------------
+
+  var korb = [], lieferung = false;
+  var eur = function(n){ return n.toFixed(2).replace('.', ',') + ' €'; };
+
+  // Karte zeichnen
+  var ziel = document.getElementById('karte'), html = '';
+  KARTE.forEach(function(g, gi){
+    html += '<h2>' + g.gruppe + '</h2>';
+    g.sachen.forEach(function(s, si){
+      var id = gi + '-' + si;
+      html += '<div class="gericht" data-id="'+id+'">'
+           +   '<div class="kopf" data-auf="'+id+'">'
+           +     '<span class="name">' + s.n + (s.z ? '<span class="zutaten">'+s.z+'</span>' : '') + '</span>'
+           +     '<span class="punkte"></span>'
+           +     '<span class="preis">' + eur(s.p) + '</span>'
+           +     '<span class="plus">+</span>'
+           +   '</div>'
+           +   '<div class="panel">';
+      if (g.groessen){
+        html += '<fieldset><legend>Größe</legend>';
+        GROESSEN.forEach(function(gr, i){
+          html += '<label><input type="radio" name="gr'+id+'" value="'+i+'"'+(i===0?' checked':'')+'> '
+               + gr.n + (gr.auf ? ' (+' + eur(gr.auf) + ')' : '') + '</label>';
+        });
+        html += '</fieldset>';
+      }
+      if (g.extras){
+        html += '<fieldset><legend>Extras</legend>';
+        EXTRAS.forEach(function(ex, i){
+          html += '<label><input type="checkbox" name="ex'+id+'" value="'+i+'"> '
+               + ex.n + ' (+' + eur(ex.auf) + ')</label>';
+        });
+        html += '</fieldset>';
+      }
+      html += '<button type="button" class="inkorb" data-in="'+id+'">In den Korb</button>'
+           + '</div></div>';
+    });
+  });
+  ziel.innerHTML = html;
+
+  function finde(id){ var t = id.split('-'); return KARTE[+t[0]].sachen[+t[1]]; }
+
+  ziel.addEventListener('click', function(e){
+    var auf = e.target.closest('[data-auf]');
+    if (auf){ auf.parentNode.classList.toggle('offen'); return; }
+    var btn = e.target.closest('[data-in]');
+    if (!btn) return;
+    var id = btn.getAttribute('data-in'), box = btn.closest('.gericht'), s = finde(id);
+    var preis = s.p, zusatz = [];
+    var gr = box.querySelector('input[type=radio]:checked');
+    if (gr){ var g = GROESSEN[+gr.value]; preis += g.auf; if (g.auf) zusatz.push(g.n); }
+    box.querySelectorAll('input[type=checkbox]:checked').forEach(function(c){
+      var ex = EXTRAS[+c.value]; preis += ex.auf; zusatz.push(ex.n);
+      c.checked = false;
+    });
+    korb.push({ name:s.n, zusatz:zusatz, preis:preis });
+    box.classList.remove('offen');
+    zeichneKorb();
+  });
+
+  function zeichneKorb(){
+    var liste = document.getElementById('korbliste'), summe = 0, h = '';
+    korb.forEach(function(p, i){
+      summe += p.preis;
+      h += '<div class="kzeile"><span class="kn">' + p.name
+        + (p.zusatz.length ? '<small>' + p.zusatz.join(', ') + '</small>' : '')
+        + '</span><span class="kp">' + eur(p.preis) + '</span>'
+        + '<button class="weg" data-weg="'+i+'" title="entfernen">×</button></div>';
+    });
+    if (!korb.length) h = '<p class="leer">Noch nichts ausgewählt.</p>';
+    if (lieferung && korb.length){
+      summe += LIEFERUNG;
+      h += '<div class="kzeile"><span class="kn">Lieferung</span><span class="kp">' + eur(LIEFERUNG) + '</span></div>';
+    }
+    liste.innerHTML = h;
+    document.getElementById('summe').textContent  = eur(summe);
+    document.getElementById('gesamt').textContent = eur(summe);
+
+    var warenwert = korb.reduce(function(a,p){ return a + p.preis; }, 0);
+    var ok = korb.length > 0 && (!lieferung || warenwert >= MINDEST);
+    var knopf = document.getElementById('bSenden');
+    knopf.disabled = !ok;
+    knopf.textContent = (lieferung && korb.length && warenwert < MINDEST)
+      ? 'Lieferung ab ' + eur(MINDEST) : 'Bestellung schicken';
+  }
+
+  document.getElementById('korbliste').addEventListener('click', function(e){
+    var w = e.target.closest('[data-weg]');
+    if (!w) return;
+    korb.splice(+w.getAttribute('data-weg'), 1);
+    zeichneKorb();
+  });
+
+  function setzeArt(l){
+    lieferung = l;
+    document.getElementById('bLief').setAttribute('aria-pressed', l ? 'true':'false');
+    document.getElementById('bAbhol').setAttribute('aria-pressed', l ? 'false':'true');
+    document.getElementById('lAdresse').hidden = !l;
+    zeichneKorb();
+  }
+  document.getElementById('bAbhol').onclick = function(){ setzeArt(false); };
+  document.getElementById('bLief').onclick  = function(){ setzeArt(true); };
+
+  document.getElementById('bSenden').onclick = function(){
+    var name = document.getElementById('fName').value.trim();
+    var tel  = document.getElementById('fTel').value.trim();
+    var adr  = document.getElementById('fAdresse').value.trim();
+    if (!name || !tel){ alert('Bitte Name und Telefonnummer eintragen.'); return; }
+    if (lieferung && !adr){ alert('Bitte die Lieferadresse eintragen.'); return; }
+
+    var summe = korb.reduce(function(a,p){ return a + p.preis; }, 0) + (lieferung ? LIEFERUNG : 0);
+    var t = 'Bestellung – Pizzeria Sonnhof\n\n';
+    korb.forEach(function(p){
+      t += '• ' + p.name + (p.zusatz.length ? ' (' + p.zusatz.join(', ') + ')' : '')
+        + ' — ' + eur(p.preis) + '\n';
+    });
+    if (lieferung) t += '• Lieferung — ' + eur(LIEFERUNG) + '\n';
+    t += '\nSumme: ' + eur(summe) + '\n\n'
+      + (lieferung ? 'Lieferung an: ' + adr + '\n' : 'Abholung im Lokal\n')
+      + 'Wann: ' + document.getElementById('fZeit').value + '\n'
+      + 'Name: ' + name + '\n'
+      + 'Telefon: ' + tel;
+
+    window.open('https://wa.me/' + WHATSAPP + '?text=' + encodeURIComponent(t), '_blank');
+  };
+
+  zeichneKorb();
+})();
+</script>
+</body>
+</html>
